@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+html,
+body,
+.wrapper {
+  height: 100%;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+#map {
+  flex: 1;
+}
+calcite-stepper {
+  padding: 10px;
+  box-sizing: border-box;
+}
+#map {
+  flex-grow: 1;
+}
