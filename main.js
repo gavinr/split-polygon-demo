@@ -3,6 +3,14 @@
 var map = L.map("map").setView([34, -98.57], 6);
 L.esri.basemapLayer("Topographic").addTo(map);
 
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+var drawControl = new L.Control.Draw({
+  draw: false,
+  edit: false,
+});
+map.addControl(drawControl);
+
 function getColor(c) {
   return c === 1
     ? "#800026"
@@ -36,22 +44,24 @@ let voronoiPolygons;
 let voronoiClipLayer;
 let clipped;
 
+map.on(L.Draw.Event.CREATED, (e) => {
+  let layer = e.layer;
+  polygon = layer;
+  polygon.addTo(map);
+  polygonBbox = turf.bbox(polygon.toGeoJSON());
+});
+
 const showPolygon = () => {
-  if (!polygon) {
-    polygon = L.polygon([
-      [39, -97],
-      [30, -99],
-      [39, -90],
-    ]).addTo(map);
-    polygonBbox = turf.bbox(polygon.toGeoJSON());
-  }
+  new L.Draw.Polygon(map, drawControl.options.polygon).enable();
 };
 const showPolygonDestroy = () => {
   console.log("showPolygonDestroy");
+
   if (polygon) {
     map.removeLayer(polygon);
     polygon = undefined;
   }
+  showPolygon();
 };
 
 const randomPointsStep = () => {
@@ -87,6 +97,7 @@ const randomPointsDestroy = () => {
     map.removeLayer(pointsLayer);
     pointsLayer = undefined;
   }
+  showPolygonDestroy();
 };
 
 const clusterStep = () => {
@@ -135,7 +146,6 @@ const centroidsStep = () => {
       }
       clusterGroups[feature.properties.cluster].push(feature);
     });
-    console.log("clusterGroups", clusterGroups);
 
     centroids = [];
     Object.keys(clusterGroups).forEach((i) => {
@@ -201,8 +211,6 @@ const voronoiClipStep = () => {
 
   if (!clipped) {
     const clipped = voronoiPolygons.features.map((feature) => {
-      console.log("feature.geometry", feature.geometry);
-      console.log("polygon", polygon.toGeoJSON());
       return turf.intersect(feature.geometry, polygon.toGeoJSON());
     });
 
