@@ -3,6 +3,14 @@
 var map = L.map("map").setView([34, -98.57], 6);
 L.esri.basemapLayer("Topographic").addTo(map);
 
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+var drawControl = new L.Control.Draw({
+  draw: false,
+  edit: false,
+});
+map.addControl(drawControl);
+
 function getColor(c) {
   return c === 1
     ? "#800026"
@@ -36,22 +44,54 @@ let voronoiPolygons;
 let voronoiClipLayer;
 let clipped;
 
-const showPolygon = () => {
-  if (!polygon) {
-    polygon = L.polygon([
-      [39, -97],
-      [30, -99],
-      [39, -90],
-    ]).addTo(map);
-    polygonBbox = turf.bbox(polygon.toGeoJSON());
+map.on(L.Draw.Event.CREATED, (e) => {
+  let layer = e.layer;
+  polygon = layer;
+  polygon.addTo(map);
+  polygonBbox = turf.bbox(polygon.toGeoJSON());
+  enableAll();
+});
+
+// Gets called when entering the first ("Polygon") step
+const disableAll = () => {
+  for (let a = 0; a < steps.length; a++) {
+    let s = `calcite-stepper > *:nth-child(${a + 1})`;
+    let st = document.querySelector(s);
+    if (a > 0) {
+      st.setAttribute("disabled", "");
+    } else {
+      st.removeAttribute("disabled");
+    }
   }
+
+  // Show the "please draw .." message on the first step.
+  document
+    .querySelector(`calcite-stepper > *:nth-child(1)`)
+    .setAttribute("item-subtitle", "Please draw a polygon on the map.");
+};
+
+// Gets called when polygon has been drawn in the first step.
+const enableAll = () => {
+  for (let a = 0; a < steps.length; a++) {
+    let s = `calcite-stepper > *:nth-child(${a + 1})`;
+    let st = document.querySelector(s);
+    st.removeAttribute("disabled");
+  }
+  document
+    .querySelector(`calcite-stepper > *:nth-child(1)`)
+    .setAttribute("item-subtitle", "");
+};
+
+const showPolygon = () => {
+  disableAll();
+  new L.Draw.Polygon(map, drawControl.options.polygon).enable();
 };
 const showPolygonDestroy = () => {
-  console.log("showPolygonDestroy");
   if (polygon) {
     map.removeLayer(polygon);
     polygon = undefined;
   }
+  showPolygon();
 };
 
 const randomPointsStep = () => {
@@ -81,12 +121,12 @@ const randomPointsStep = () => {
   }
 };
 const randomPointsDestroy = () => {
-  console.log("randomPointsDestroy");
   points = undefined;
   if (pointsLayer) {
     map.removeLayer(pointsLayer);
     pointsLayer = undefined;
   }
+  showPolygonDestroy();
 };
 
 const clusterStep = () => {
@@ -114,7 +154,6 @@ const clusterStep = () => {
   }
 };
 const clusterDestroy = () => {
-  console.log("clusterDestroy");
   clustered = undefined;
   if (clusteredPointsLayer) {
     map.removeLayer(clusteredPointsLayer);
@@ -135,7 +174,6 @@ const centroidsStep = () => {
       }
       clusterGroups[feature.properties.cluster].push(feature);
     });
-    console.log("clusterGroups", clusterGroups);
 
     centroids = [];
     Object.keys(clusterGroups).forEach((i) => {
@@ -156,7 +194,6 @@ const centroidsStep = () => {
   }
 };
 const centroidsDestroy = () => {
-  console.log("centroidsDestroy");
   clusterGroups = undefined;
   if (centroids) {
     centroids = undefined;
@@ -181,13 +218,18 @@ const voronoiStep = () => {
 
     voronoiLayer = L.geoJSON(voronoiPolygons).addTo(map);
   }
+  if (clusteredPointsLayer) {
+    map.removeLayer(clusteredPointsLayer);
+  }
 };
 const voronoiDestroy = () => {
-  console.log("voronoiDestroy");
   voronoiPolygons = undefined;
   if (voronoiLayer) {
     map.removeLayer(voronoiLayer);
     voronoiLayer = undefined;
+  }
+  if (clusteredPointsLayer) {
+    clusteredPointsLayer.addTo(map);
   }
 };
 
@@ -198,11 +240,11 @@ const voronoiClipStep = () => {
   if (polygon) {
     map.removeLayer(polygon);
   }
-
+  if (centroidLayer) {
+    map.removeLayer(centroidLayer);
+  }
   if (!clipped) {
     const clipped = voronoiPolygons.features.map((feature) => {
-      console.log("feature.geometry", feature.geometry);
-      console.log("polygon", polygon.toGeoJSON());
       return turf.intersect(feature.geometry, polygon.toGeoJSON());
     });
 
@@ -213,7 +255,6 @@ const voronoiClipStep = () => {
   }
 };
 const voronoiClipDestroy = () => {
-  console.log("voronoiClipDestroy");
   clipped = false;
   if (voronoiClipLayer) {
     map.removeLayer(voronoiClipLayer);
@@ -224,6 +265,9 @@ const voronoiClipDestroy = () => {
   }
   if (polygon) {
     polygon.addTo(map);
+  }
+  if (centroidLayer) {
+    centroidLayer.addTo(map);
   }
 };
 
@@ -258,12 +302,20 @@ for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
   let step = document.querySelector(selector);
   step.addEventListener("click", () => {
-    // reset();
-    // Destroy
+    // Set all the "previous" steps as "complete" (checked icon)
+    for (let a = 0; a < steps.length; a++) {
+      let s = `calcite-stepper > *:nth-child(${a + 1})`;
+      let st = document.querySelector(s);
+      if (a < i) {
+        st.setAttribute("complete", "");
+      } else {
+        st.removeAttribute("complete");
+      }
+    }
+
     const lastStep = currentStep;
     currentStep = i;
 
-    // for (let k = currentStep + 1; k <= lastStep; k++) {
     for (let k = lastStep; k > currentStep; k--) {
       const destroyFunc = steps[k].destroy;
       destroyFunc();
