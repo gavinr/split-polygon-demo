@@ -87,8 +87,6 @@ const showPolygon = () => {
   new L.Draw.Polygon(map, drawControl.options.polygon).enable();
 };
 const showPolygonDestroy = () => {
-  console.log("showPolygonDestroy");
-
   if (polygon) {
     map.removeLayer(polygon);
     polygon = undefined;
@@ -123,7 +121,6 @@ const randomPointsStep = () => {
   }
 };
 const randomPointsDestroy = () => {
-  console.log("randomPointsDestroy");
   points = undefined;
   if (pointsLayer) {
     map.removeLayer(pointsLayer);
@@ -157,7 +154,6 @@ const clusterStep = () => {
   }
 };
 const clusterDestroy = () => {
-  console.log("clusterDestroy");
   clustered = undefined;
   if (clusteredPointsLayer) {
     map.removeLayer(clusteredPointsLayer);
@@ -198,7 +194,6 @@ const centroidsStep = () => {
   }
 };
 const centroidsDestroy = () => {
-  console.log("centroidsDestroy");
   clusterGroups = undefined;
   if (centroids) {
     centroids = undefined;
@@ -228,7 +223,6 @@ const voronoiStep = () => {
   }
 };
 const voronoiDestroy = () => {
-  console.log("voronoiDestroy");
   voronoiPolygons = undefined;
   if (voronoiLayer) {
     map.removeLayer(voronoiLayer);
@@ -261,7 +255,6 @@ const voronoiClipStep = () => {
   }
 };
 const voronoiClipDestroy = () => {
-  console.log("voronoiClipDestroy");
   clipped = false;
   if (voronoiClipLayer) {
     map.removeLayer(voronoiClipLayer);
