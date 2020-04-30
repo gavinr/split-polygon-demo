@@ -223,6 +223,9 @@ const voronoiStep = () => {
 
     voronoiLayer = L.geoJSON(voronoiPolygons).addTo(map);
   }
+  if (clusteredPointsLayer) {
+    map.removeLayer(clusteredPointsLayer);
+  }
 };
 const voronoiDestroy = () => {
   console.log("voronoiDestroy");
@@ -230,6 +233,9 @@ const voronoiDestroy = () => {
   if (voronoiLayer) {
     map.removeLayer(voronoiLayer);
     voronoiLayer = undefined;
+  }
+  if (clusteredPointsLayer) {
+    clusteredPointsLayer.addTo(map);
   }
 };
 
@@ -240,7 +246,9 @@ const voronoiClipStep = () => {
   if (polygon) {
     map.removeLayer(polygon);
   }
-
+  if (centroidLayer) {
+    map.removeLayer(centroidLayer);
+  }
   if (!clipped) {
     const clipped = voronoiPolygons.features.map((feature) => {
       return turf.intersect(feature.geometry, polygon.toGeoJSON());
@@ -264,6 +272,9 @@ const voronoiClipDestroy = () => {
   }
   if (polygon) {
     polygon.addTo(map);
+  }
+  if (centroidLayer) {
+    centroidLayer.addTo(map);
   }
 };
 
