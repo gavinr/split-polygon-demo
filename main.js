@@ -49,9 +49,41 @@ map.on(L.Draw.Event.CREATED, (e) => {
   polygon = layer;
   polygon.addTo(map);
   polygonBbox = turf.bbox(polygon.toGeoJSON());
+  enableAll();
 });
 
+// Gets called when entering the first ("Polygon") step
+const disableAll = () => {
+  for (let a = 0; a < steps.length; a++) {
+    let s = `calcite-stepper > *:nth-child(${a + 1})`;
+    let st = document.querySelector(s);
+    if (a > 0) {
+      st.setAttribute("disabled", "");
+    } else {
+      st.removeAttribute("disabled");
+    }
+  }
+
+  // Show the "please draw .." message on the first step.
+  document
+    .querySelector(`calcite-stepper > *:nth-child(1)`)
+    .setAttribute("item-subtitle", "Please draw a polygon on the map.");
+};
+
+// Gets called when polygon has been drawn in the first step.
+const enableAll = () => {
+  for (let a = 0; a < steps.length; a++) {
+    let s = `calcite-stepper > *:nth-child(${a + 1})`;
+    let st = document.querySelector(s);
+    st.removeAttribute("disabled");
+  }
+  document
+    .querySelector(`calcite-stepper > *:nth-child(1)`)
+    .setAttribute("item-subtitle", "");
+};
+
 const showPolygon = () => {
+  disableAll();
   new L.Draw.Polygon(map, drawControl.options.polygon).enable();
 };
 const showPolygonDestroy = () => {
@@ -266,12 +298,20 @@ for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
   let step = document.querySelector(selector);
   step.addEventListener("click", () => {
-    // reset();
-    // Destroy
+    // Set all the "previous" steps as "complete" (checked icon)
+    for (let a = 0; a < steps.length; a++) {
+      let s = `calcite-stepper > *:nth-child(${a + 1})`;
+      let st = document.querySelector(s);
+      if (a < i) {
+        st.setAttribute("complete", "");
+      } else {
+        st.removeAttribute("complete");
+      }
+    }
+
     const lastStep = currentStep;
     currentStep = i;
 
-    // for (let k = currentStep + 1; k <= lastStep; k++) {
     for (let k = lastStep; k > currentStep; k--) {
       const destroyFunc = steps[k].destroy;
       destroyFunc();
