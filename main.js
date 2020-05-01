@@ -79,20 +79,28 @@ const enableAll = () => {
   }
   document
     .querySelector(`calcite-stepper > *:nth-child(1)`)
-    .setAttribute("item-subtitle", "");
+    .setAttribute("item-subtitle", "Click twice to draw your own.");
 };
 
 const showPolygon = () => {
-  disableAll();
-  new L.Draw.Polygon(map, drawControl.options.polygon).enable();
+  if (!polygon) {
+    polygon = L.polygon([
+      [39, -97],
+      [30, -99],
+      [39, -90],
+    ]).addTo(map);
+    polygonBbox = turf.bbox(polygon.toGeoJSON());
+  }
 };
-const showPolygonDestroy = () => {
+const showDrawPolygon = () => {
   if (polygon) {
     map.removeLayer(polygon);
     polygon = undefined;
   }
-  showPolygon();
+  disableAll();
+  new L.Draw.Polygon(map, drawControl.options.polygon).enable();
 };
+const showPolygonDestroy = () => {};
 
 const randomPointsStep = () => {
   if (!points) {
@@ -126,7 +134,6 @@ const randomPointsDestroy = () => {
     map.removeLayer(pointsLayer);
     pointsLayer = undefined;
   }
-  showPolygonDestroy();
 };
 
 const clusterStep = () => {
@@ -298,10 +305,22 @@ let steps = [
   },
 ];
 
+let clickedOnce = false;
+
 for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
   let step = document.querySelector(selector);
   step.addEventListener("click", () => {
+    if (i == 0) {
+      if (clickedOnce) {
+        showDrawPolygon();
+        clickedOnce = false;
+      } else {
+        clickedOnce = true;
+      }
+    } else {
+      clickedOnce = false;
+    }
     // Set all the "previous" steps as "complete" (checked icon)
     for (let a = 0; a < steps.length; a++) {
       let s = `calcite-stepper > *:nth-child(${a + 1})`;

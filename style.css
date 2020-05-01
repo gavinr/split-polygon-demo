@@ -21,3 +21,7 @@ calcite-stepper {
 #map {
   flex-grow: 1;
 }
+.drawPolygonWrapper {
+  position: relative;
+  top: -27px;
+}
