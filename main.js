@@ -103,6 +103,7 @@ const showDrawPolygon = () => {
 };
 const showPolygonDestroy = () => {};
 
+// STEP 2 ----------------------------------------------------------------------
 const randomPointsStep = () => {
   if (!points) {
     points = turf.randomPoint(1000, { bbox: polygonBbox });
@@ -137,6 +138,7 @@ const randomPointsDestroy = () => {
   }
 };
 
+// STEP 3 ----------------------------------------------------------------------
 const clusterStep = () => {
   if (pointsLayer) {
     map.removeLayer(pointsLayer);
@@ -172,6 +174,7 @@ const clusterDestroy = () => {
   }
 };
 
+// STEP 4 ----------------------------------------------------------------------
 const centroidsStep = () => {
   // for each group of points, calculate the centroid
   if (!centroids) {
@@ -212,6 +215,7 @@ const centroidsDestroy = () => {
   }
 };
 
+// STEP 5 ----------------------------------------------------------------------
 const voronoiStep = () => {
   if (!voronoiPolygons) {
     voronoiPolygons = turf.voronoi(
@@ -241,6 +245,7 @@ const voronoiDestroy = () => {
   }
 };
 
+// STEP 6 ----------------------------------------------------------------------
 const voronoiClipStep = () => {
   if (voronoiLayer) {
     map.removeLayer(voronoiLayer);
@@ -279,6 +284,7 @@ const voronoiClipDestroy = () => {
   }
 };
 
+// Array of Steps --------------------------------------------------------------
 let steps = [
   {
     run: showPolygon,
@@ -341,7 +347,9 @@ points.features = points.features.filter((feature) => {
 ];
 
 let clickedOnce = false;
+let reRun = false;
 
+// Create click handlers:
 for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
   let step = document.querySelector(selector);
@@ -358,6 +366,18 @@ for (let i = 0; i < steps.length; i++) {
       clickedOnce = false;
     }
 
+    // Multi-click last step to re-run all:
+    if (i == steps.length - 1) {
+      if (reRun) {
+        runForStep(0);
+        runForStep(5);
+      } else {
+        reRun = true;
+      }
+    } else {
+      reRun = false;
+    }
+
     // Set all the "previous" steps as "complete" (checked icon)
     for (let a = 0; a < steps.length; a++) {
       let s = `calcite-stepper > *:nth-child(${a + 1})`;
@@ -369,24 +389,32 @@ for (let i = 0; i < steps.length; i++) {
       }
     }
 
-    const lastStep = currentStep;
-    currentStep = i;
-
-    for (let k = lastStep; k > currentStep; k--) {
-      const destroyFunc = steps[k].destroy;
-      destroyFunc();
-    }
-
-    for (let j = lastStep + 1; j <= currentStep; j++) {
-      const func = steps[j].run;
-      func();
-    }
-
-    // code block
-    let codeBlock = document.querySelector("#codeBlock code");
-    codeBlock.innerHTML = steps[i].code;
-    hljs.highlightBlock(codeBlock);
+    runForStep(i);
   });
 }
+
+// Gets called based on which step you click on. Backs up and moves forward
+// based on which step you were on and what step you're trying to go to.
+const runForStep = (i) => {
+  const lastStep = currentStep;
+  currentStep = i;
+
+  for (let k = lastStep; k > currentStep; k--) {
+    const destroyFunc = steps[k].destroy;
+    destroyFunc();
+  }
+
+  for (let j = lastStep + 1; j <= currentStep; j++) {
+    const func = steps[j].run;
+    func();
+  }
+
+  // update the code block text:
+  let codeBlock = document.querySelector("#codeBlock code");
+  codeBlock.innerHTML = steps[i].code;
+  hljs.highlightBlock(codeBlock);
+};
+
+// Kick everything off:
 showPolygon();
 hljs.initHighlightingOnLoad();
