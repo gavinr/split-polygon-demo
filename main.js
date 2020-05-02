@@ -82,6 +82,7 @@ const enableAll = () => {
     .setAttribute("item-subtitle", "Click twice to draw your own.");
 };
 
+// STEP 1 ----------------------------------------------------------------------
 const showPolygon = () => {
   if (!polygon) {
     polygon = L.polygon([
@@ -282,26 +283,60 @@ let steps = [
   {
     run: showPolygon,
     destroy: showPolygonDestroy,
+    code: `polygon = L.polygon([...]).addTo(map);`,
   },
   {
     run: randomPointsStep,
     destroy: randomPointsDestroy,
+    code: `points = turf.randomPoint(1000, { 
+  bbox: polygonBbox 
+});
+
+points.features = points.features.filter((feature) => {
+  return turf.booleanPointInPolygon(
+    feature.geometry.coordinates,
+    polygon.toGeoJSON()
+  );
+});`,
   },
   {
     run: clusterStep,
     destroy: clusterDestroy,
+    code: `turf.clustersKmeans(points, {
+  numberOfClusters: 8,
+});`,
   },
   {
     run: centroidsStep,
     destroy: centroidsDestroy,
+    code: `Object.keys(clusterGroups).forEach((i) => {
+  const features = clusterGroups[i];
+  const centroid = turf.centroid({
+    type: "FeatureCollection",
+    features: features,
+  });
+  centroids.push(centroid);
+});`,
   },
   {
     run: voronoiStep,
     destroy: voronoiDestroy,
+    code: `turf.voronoi(
+  {
+    type: "FeatureCollection",
+    features: centroids,
+  },
+  {
+    bbox: polygonBbox,
+  }
+);`,
   },
   {
     run: voronoiClipStep,
     destroy: voronoiClipDestroy,
+    code: `voronoiPolygons.features.map((feature) => {
+  return turf.intersect(feature.geometry, polygon.toGeoJSON());
+});`,
   },
 ];
 
@@ -311,6 +346,7 @@ for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
   let step = document.querySelector(selector);
   step.addEventListener("click", () => {
+    // Multi-click first step to draw:
     if (i == 0) {
       if (clickedOnce) {
         showDrawPolygon();
@@ -321,6 +357,7 @@ for (let i = 0; i < steps.length; i++) {
     } else {
       clickedOnce = false;
     }
+
     // Set all the "previous" steps as "complete" (checked icon)
     for (let a = 0; a < steps.length; a++) {
       let s = `calcite-stepper > *:nth-child(${a + 1})`;
@@ -344,6 +381,12 @@ for (let i = 0; i < steps.length; i++) {
       const func = steps[j].run;
       func();
     }
+
+    // code block
+    let codeBlock = document.querySelector("#codeBlock code");
+    codeBlock.innerHTML = steps[i].code;
+    hljs.highlightBlock(codeBlock);
   });
 }
 showPolygon();
+hljs.initHighlightingOnLoad();

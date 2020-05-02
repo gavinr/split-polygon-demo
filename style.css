@@ -12,16 +12,27 @@ body,
   flex-direction: column;
 }
 #map {
-  flex: 1;
+  height: 100%;
 }
 calcite-stepper {
   padding: 10px;
   box-sizing: border-box;
 }
-#map {
-  flex-grow: 1;
-}
 .drawPolygonWrapper {
   position: relative;
   top: -27px;
+}
+.mapWrapper {
+  flex: 1;
+  flex-grow: 1;
+  position: relative;
+}
+#codeBlock {
+  background-color: white;
+  width: 400px;
+  right: 20px;
+  top: 20px;
+  z-index: 400;
+  position: absolute;
+  padding: 10px;
 }

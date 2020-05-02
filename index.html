@@ -6,6 +6,12 @@
 
     <title>Split Polygon Demo</title>
 
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/styles/default.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/highlight.min.js"></script>
+
     <!-- Leaflet: -->
     <link
       rel="stylesheet"
@@ -76,7 +82,13 @@
         <calcite-stepper-item item-title="Voronoi"></calcite-stepper-item>
         <calcite-stepper-item item-title="Voronoi Clip"></calcite-stepper-item>
       </calcite-stepper>
-      <div id="map"></div>
+      <div class="mapWrapper">
+        <div id="map"></div>
+        <div id="codeBlock">
+          <h2>Code</h2>
+          <pre><code class="javascript">polygon = L.polygon([...]).addTo(map);</code></pre>
+        </div>
+      </div>
     </div>
   </body>
 </html>
