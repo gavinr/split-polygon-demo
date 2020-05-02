@@ -76,19 +76,20 @@
         <calcite-stepper-item
           item-title="Cluster the Points"
           item-subtitle="Using K-Means"
+          title="Click again to change the number of clusters"
         >
         </calcite-stepper-item>
         <calcite-stepper-item item-title="Centroids"></calcite-stepper-item>
         <calcite-stepper-item item-title="Voronoi"></calcite-stepper-item>
         <calcite-stepper-item
           item-title="Voronoi Clip"
-          title="Click twice to re-run whole thing!"
+          title="Click twice to re-run"
         ></calcite-stepper-item>
       </calcite-stepper>
       <div class="mapWrapper">
         <div id="map"></div>
         <div id="codeBlock">
-          <h2>Code</h2>
+          <h4>Code</h4>
           <pre><code class="javascript">polygon = L.polygon([...]).addTo(map);</code></pre>
         </div>
       </div>

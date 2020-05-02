@@ -13,20 +13,24 @@ map.addControl(drawControl);
 
 function getColor(c) {
   return c === 1
-    ? "#800026"
+    ? "#a6cee3"
     : c === 2
-    ? "#BD0026"
+    ? "#1f78b4"
     : c === 3
-    ? "#E31A1C"
+    ? "#b2df8a"
     : c === 4
-    ? "#FC4E2A"
+    ? "#33a02c"
     : c === 5
-    ? "#FD8D3C"
+    ? "#fb9a99"
     : c === 6
-    ? "#FEB24C"
+    ? "#e31a1c"
     : c === 7
-    ? "#FED976"
-    : "#FFEDA0";
+    ? "#fdbf6f"
+    : c === 8
+    ? "#ff7f00"
+    : c === 9
+    ? "#cab2d6"
+    : "#6a3d9a";
 }
 
 let currentStep = 0;
@@ -35,6 +39,7 @@ let polygonBbox;
 let pointsLayer;
 let clusteredPointsLayer;
 let points;
+let numberOfClusters = 8;
 let clustered;
 let clusterGroups;
 let centroids;
@@ -146,7 +151,7 @@ const clusterStep = () => {
 
   if (!clustered) {
     clustered = turf.clustersKmeans(points, {
-      numberOfClusters: 8,
+      numberOfClusters: numberOfClusters,
     });
 
     clusteredPointsLayer = L.geoJSON(clustered, {
@@ -347,6 +352,7 @@ points.features = points.features.filter((feature) => {
 ];
 
 let clickedOnce = false;
+let reRun3 = false;
 let reRun = false;
 
 // Create click handlers:
@@ -364,6 +370,23 @@ for (let i = 0; i < steps.length; i++) {
       }
     } else {
       clickedOnce = false;
+    }
+
+    // Multi-click step 3 to change number of clusters:
+    if (i == 2) {
+      if (reRun3) {
+        if (numberOfClusters > 9) {
+          numberOfClusters = 3;
+        } else {
+          numberOfClusters++;
+        }
+        runForStep(1);
+        runForStep(2);
+      } else {
+        reRun3 = true;
+      }
+    } else {
+      reRun3 = false;
     }
 
     // Multi-click last step to re-run all:
