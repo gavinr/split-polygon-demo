@@ -314,7 +314,7 @@ points.features = points.features.filter((feature) => {
     run: clusterStep,
     destroy: clusterDestroy,
     code: `turf.clustersKmeans(points, {
-  numberOfClusters: 8,
+  numberOfClusters: __clusters__,
 });`,
   },
   {
@@ -352,6 +352,7 @@ points.features = points.features.filter((feature) => {
 ];
 
 let clickedOnce = false;
+let reRun2 = false;
 let reRun3 = false;
 let reRun = false;
 
@@ -370,6 +371,18 @@ for (let i = 0; i < steps.length; i++) {
       }
     } else {
       clickedOnce = false;
+    }
+
+    // Multi-click step 2 to re-run random:
+    if (i == 1) {
+      if (reRun2) {
+        runForStep(0);
+        runForStep(1);
+      } else {
+        reRun2 = true;
+      }
+    } else {
+      reRun2 = false;
     }
 
     // Multi-click step 3 to change number of clusters:
@@ -434,7 +447,7 @@ const runForStep = (i) => {
 
   // update the code block text:
   let codeBlock = document.querySelector("#codeBlock code");
-  codeBlock.innerHTML = steps[i].code;
+  codeBlock.innerHTML = steps[i].code.replace("__clusters__", numberOfClusters);
   hljs.highlightBlock(codeBlock);
 };
 
