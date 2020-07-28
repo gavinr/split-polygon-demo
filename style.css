@@ -39,3 +39,25 @@ calcite-stepper {
 #codeBlock .linkWrapper {
   text-align: right;
 }
+
+#mainSelect {
+  display: none;
+}
+@media (max-width: 1200px) {
+  calcite-stepper {
+    display: none;
+  }
+  #mainSelect {
+    display: block;
+  }
+  #codeBlock {
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    height: 143px;
+    overflow-y: auto;
+    top: auto;
+    width: auto;
+    padding-bottom: 20px;
+  }
+}

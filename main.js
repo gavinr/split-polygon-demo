@@ -356,6 +356,14 @@ let reRun2 = false;
 let reRun3 = false;
 let reRun = false;
 
+// change handler for mobile-view select
+let selector = document.querySelector("#mainSelect");
+selector.addEventListener("change", (evt) => {
+  let s2 = `calcite-stepper > *:nth-child(${evt.target.selectedIndex + 1})`;
+  document.querySelector(s2).click();
+  selector.click();
+});
+
 // Create click handlers:
 for (let i = 0; i < steps.length; i++) {
   let selector = `calcite-stepper > *:nth-child(${i + 1})`;
@@ -425,6 +433,10 @@ for (let i = 0; i < steps.length; i++) {
       }
     }
 
+    // let selector = document.querySelectorAll("#mainSelect option")[i].value;
+    document.querySelector("#mainSelect").value = document.querySelectorAll(
+      "#mainSelect option"
+    )[i].value;
     runForStep(i);
   });
 }
