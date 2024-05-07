@@ -1,6 +1,7 @@
 // doc:
 // http://esri.github.io/esri-leaflet/
 var map = L.map("map").setView([34, -98.57], 6);
+map.attributionControl.setPrefix("");
 L.esri.basemapLayer("Topographic").addTo(map);
 
 var drawnItems = new L.FeatureGroup();
@@ -434,9 +435,8 @@ for (let i = 0; i < steps.length; i++) {
     }
 
     // let selector = document.querySelectorAll("#mainSelect option")[i].value;
-    document.querySelector("#mainSelect").value = document.querySelectorAll(
-      "#mainSelect option"
-    )[i].value;
+    document.querySelector("#mainSelect").value =
+      document.querySelectorAll("#mainSelect option")[i].value;
     runForStep(i);
   });
 }

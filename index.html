@@ -34,11 +34,11 @@
 
     <script
       defer
-      src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
     <script
       defer
-      src="https://unpkg.com/esri-leaflet@2.4.1/dist/esri-leaflet.js"
+      src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"
     ></script>
     <script
       defer
@@ -56,13 +56,13 @@
 
     <!-- Calcite -->
     <script
+      src="https://js.arcgis.com/calcite-components/2.8.0/calcite.esm.js"
       type="module"
-      src="https://unpkg.com/@esri/calcite-components@1.0.0-beta.33/dist/calcite/calcite.esm.js"
     ></script>
-    <script
-      nomodule=""
-      src="https://unpkg.com/@esri/calcite-components@1.0.0-beta.33/dist/calcite/calcite.js"
-    ></script>
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/calcite-components/2.8.0/calcite.css"
+    />
 
     <!-- Main JS File: -->
     <script defer src="main.js"></script>
@@ -80,25 +80,25 @@
       </select>
       <calcite-stepper icon numbered>
         <calcite-stepper-item
-          item-title="Polygon"
-          item-subtitle="Click twice to draw"
+          heading="Polygon"
+          description="Click twice to draw"
         ></calcite-stepper-item>
         <calcite-stepper-item
-          item-title="Random Points"
-          item-subtitle="Click twice to re-generate"
+          heading="Random Points"
+          description="Click twice to re-generate"
           title="Click twice to re-generate random points"
         ></calcite-stepper-item>
         <calcite-stepper-item
-          item-title="Cluster the Points (K-Means)"
-          item-subtitle="Click twice to change the number of clusters"
+          heading="Cluster the Points (K-Means)"
+          description="Click twice to change the number of clusters"
           title="Click twice to change the number of clusters"
         >
         </calcite-stepper-item>
-        <calcite-stepper-item item-title="Centroids"></calcite-stepper-item>
-        <calcite-stepper-item item-title="Voronoi"></calcite-stepper-item>
+        <calcite-stepper-item heading="Centroids"></calcite-stepper-item>
+        <calcite-stepper-item heading="Voronoi"></calcite-stepper-item>
         <calcite-stepper-item
-          item-title="Voronoi Clip"
-          item-subtitle="Click twice to re-run"
+          heading="Voronoi Clip"
+          description="Click twice to re-run"
           title="Click twice to re-run"
         ></calcite-stepper-item>
       </calcite-stepper>
